@@ -8,8 +8,10 @@ import re
 import csv
 import time
 from scrapy.crawler import CrawlerProcess
+import random
 
-SLEEP_TIME = 2
+MIN_SLEEP_TIME = 2
+MAX_SLEEP_TIME = 4
 
 # 每个微博条是一个类
 class Post:
@@ -51,11 +53,16 @@ class WeiboSpider(scrapy.Spider):
     baseUrl = "https://s.weibo.com/weibo/{}&region=custom:{}:{}&typeall=1&suball=1&timescope=custom:{}:{}&Refer=g&page={}" 
     posts = {} # 爬取的所有微博条都存到posts，是一个dict of list of Post。dict的key是省份名称。
 
-    data_dir = "./data/" # 数据库文件的文件夹
+    data_dir = "../data/" # 数据库文件的文件夹
     num_unsaved_post = 0 # 记录仍未保存多少条
     num_post_total = 0   # 记录总共爬取多少条
 
     ###### utility ########
+    def get_sleep_time(self):
+        global MIN_SLEEP_TIME, MAX_SLEEP_TIME
+        return random.randint(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
+
+
     def add_post(self, post):
         self.posts[post.prov].append(post)
         # print("< added post >")
@@ -244,7 +251,7 @@ class WeiboSpider(scrapy.Spider):
 
                         start_page = 1
                         url = self.get_url(keyword, prov_id, city_id, start_time, end_time, start_page)
-                        self.start_urls += [url]
+                        # self.start_urls += [url]
 
                         # go to url and start parsing
                         yield scrapy.Request(
@@ -263,7 +270,7 @@ class WeiboSpider(scrapy.Spider):
                                 "keyword": keyword
                             }
                         )
-                        time.sleep(1)
+                        # time.sleep(1)
 
                     # 最后23:00到下一天的00:00的数据
                     start_time = str(day) + "-23"
@@ -272,7 +279,7 @@ class WeiboSpider(scrapy.Spider):
 
                     start_page = 1
                     url = self.get_url(keyword, prov_id, city_id, start_time, end_time, start_page)
-                    self.start_urls += [url]
+                    # self.start_urls += [url]
 
                     # go to url and start parsing
                     yield scrapy.Request(
@@ -291,10 +298,10 @@ class WeiboSpider(scrapy.Spider):
                             "keyword": keyword
                         }
                     )
-                    time.sleep(1)
+                    # time.sleep(1)
                 self.save(day, prov) # 保存
             day += datetime.timedelta(days = 1) # 下一天
-
+        self.save(day, prov)
     def parse(self, response):
         """
         对于html进行parsing
@@ -407,7 +414,7 @@ class WeiboSpider(scrapy.Spider):
         # go to next page
         # print("< next page >")
         next_url = url[: - len(str(page_num))] + str(page_num + 1)
-        time.sleep(SLEEP_TIME)
+        time.sleep(self.get_sleep_time())
         yield scrapy.Request(
             next_url,
             callback = self.parse,
