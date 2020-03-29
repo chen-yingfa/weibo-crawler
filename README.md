@@ -6,8 +6,8 @@
 
 运行说明：
 - 将想要搜索的**关键词**和**省份**分别在keywords.txt和provinces.txt输入，一行一个，省份不得有错字或者多余符号。
-- 在main.py中设置START_DATE和END_DATE为搜索时间范围。
-- 在浏览器登录weibo.com，拷贝cookies并在main.py中黏贴为COOKIES的值。
+- 在main.py中设置START_DATE和END_DATE为搜索**时间范围**。
+- 在浏览器**手动登录**weibo.com，拷贝cookies并在main.py中黏贴为COOKIES的值。
 - 运行main.py
 
 所有细节都嵌套在weibo.py中，仅需按上述步骤即可开始爬取。本程序要求手动用浏览器登录，然后通过浏览器发送的包获取cookies（欢迎你帮我搞登录，微博太难搞了）。
@@ -16,6 +16,5 @@
 
 #### 作者：
 
-陈英发
-
-最后一次更新：2020年3月14日
+陈英发，Donny Chan。
+最后一次更新：2020年3月28日
