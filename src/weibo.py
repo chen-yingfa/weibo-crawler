@@ -62,7 +62,6 @@ class WeiboSpider(scrapy.Spider):
         global MIN_SLEEP_TIME, MAX_SLEEP_TIME
         return random.randint(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
 
-
     def add_post(self, post):
         self.posts[post.prov].append(post)
         # print("< added post >")
@@ -224,18 +223,19 @@ class WeiboSpider(scrapy.Spider):
 
         # 创建posts和数据库文件
         for prov in self.list_prov:
-            self.create_db(self.start_date, prov) # create a db file for each province
             self.posts[prov] = []   # init dict of list of posts
 
         # 将cookies格式化
         self.cookies = {i.split("=")[0]:i.split("=")[1] for i in self.cookies.split("; ")}
 
         # 设置一个时间范围防止搜索结果多于50页（1000条），因为微博不会返回多于50页的结果，所以会某些微博条
-        time_range = 2 # 默认2小时
+        time_range = 1 # 默认1小时
 
         # 生成url
         day = self.start_date
         while day != self.end_date: # 遍历天
+            for prov in self.list_prov:
+                self.create_db(day, prov) # create a db file for each province
             for location in self.locations: # 遍历（市级）地点
                 prov_id, prov, city_id, city = location[0], location[1], location[2], location[3]
 
@@ -302,6 +302,7 @@ class WeiboSpider(scrapy.Spider):
                 self.save(day, prov) # 保存
             day += datetime.timedelta(days = 1) # 下一天
         self.save(day, prov)
+        
     def parse(self, response):
         """
         对于html进行parsing
@@ -326,7 +327,7 @@ class WeiboSpider(scrapy.Spider):
         
         # 检查是否到达尾页
         errorTag = soup("div", {"class": "m-error"})
-        if len(errorTag) != 0:
+        if page_num == 51 or len(errorTag) != 0:
             # 页不存在
             print("< page not found >")
             return
@@ -396,7 +397,7 @@ class WeiboSpider(scrapy.Spider):
             if "月" in fromTxt:
                 mIdx = fromTxt.find("月")
                 dIdx = fromTxt.find("日")
-                upload_date = date(2020, int(fromTxt[mIdx - 2:mIdx]), int(fromTxt[dIdx - 1:dIdx]))
+                upload_date = date(2020, int(fromTxt[mIdx - 2:mIdx]), int(fromTxt[dIdx - 2:dIdx]))
             else:
                 upload_date = date.today()
             

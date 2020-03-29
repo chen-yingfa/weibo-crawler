@@ -3,8 +3,8 @@ from scrapy.crawler import CrawlerProcess
 from datetime import date
 
 #### 搜索参数 ####
-START_DATE = date(2020, 3, 1) # 开始日期
-END_DATE = date(2020, 3, 2)   # 终止日期
+START_DATE = date(2020, 1, 31) # 开始日期
+END_DATE = date(2020, 2, 2)   # 终止日期
 COOKIES = []
 
 """ 
